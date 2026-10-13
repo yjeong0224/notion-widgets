@@ -29,31 +29,31 @@ button.text-btn:hover{color:#4f4f4f;background:transparent}
 button.icon{width:32px;height:32px;padding:0;display:grid;place-items:center;border-radius:10px}
 input[type="text"],input[type="number"]{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none;background:#fff}
 input:focus{border-color:#cfcfcf;box-shadow:0 0 0 3px rgba(0,0,0,.03)}
-.add-trigger{display:flex;justify-content:flex-end;margin-top:12px}
-.add-trigger button{border:0;background:transparent;color:#7f7f7f;padding:4px 0;font-size:12px}
+.add-trigger{display:flex;justify-content:flex-start;margin-top:7px}
+.add-trigger button{border:0;background:transparent;color:#9a9a9a;padding:2px 0;font-size:12px}
 .add-row{display:none;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
 .add-row.show{display:grid}
-.list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.task{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;min-height:40px;border:1px solid var(--line);border-radius:13px;padding:9px 11px;background:#fff}
-.task.done{order:999;opacity:.55;background:#fafafa}
-.task.done .task-text{text-decoration:line-through}
+.list{display:flex;flex-direction:column;gap:0;margin-top:8px;border-top:1px solid var(--line)}
+.task{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;min-height:36px;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:5px 2px;background:#fff}
+.task.done{order:999;opacity:.55;background:#fff}
+.task.done .task-text{font-size:13.5px;line-height:1.2;word-break:break-word}
 .task.inprogress{background:#fbfbfb}
-.task.inprogress .task-text{color:#5f5f5f}
-.task-check{appearance:none;width:18px;height:18px;border:1.5px solid #bdbdbd;border-radius:5px;margin:0;position:relative;cursor:pointer}
+.task.inprogress .task-text{font-size:13.5px;line-height:1.2;word-break:break-word}
+.task-check{appearance:none;width:15px;height:15px;border:1.5px solid #bdbdbd;border-radius:5px;margin:0;position:relative;cursor:pointer}
 .task-check:checked{background:var(--text);border-color:var(--text)}
-.task-check:checked:after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.task-text{font-size:14px;line-height:1.35;word-break:break-word}
+.task-check:checked:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.task-text{font-size:13.5px;line-height:1.2;word-break:break-word}
 .task-actions{display:flex;gap:3px;align-items:center}
-.task-actions button{border:0;background:transparent;padding:4px;color:#aaa}
+.task-actions button{border:0;background:transparent;padding:2px 3px;color:#aaa;font-size:12px}
 .status-select{border:0;background:transparent;color:#8a8a8a;font-size:12px;padding:2px 0;outline:none;cursor:pointer}
-.empty{padding:20px 10px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:13px;margin-top:12px;font-size:13px}
+.empty{padding:14px 6px;text-align:center;color:var(--muted);border:0;border-bottom:1px solid var(--line);margin-top:8px;font-size:12px}
 .progress-track{height:9px;border-radius:999px;background:#f0f0f0;overflow:hidden}
 .progress-fill{height:100%;border-radius:inherit;background:var(--accent);transition:width .25s ease}
 .pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:12px;background:#fff}
 .section{margin-top:16px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:11px;padding:4px;margin-top:12px}
-.tabs button{border:0;background:transparent}
-.tabs button.active{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:9px;padding:3px;margin-top:10px}
+.tabs button{border:0;background:transparent;padding:5px 8px;font-size:12px;border-radius:7px}
+.tabs button.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.07)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .progress-card{border:1px solid var(--line);border-radius:15px;padding:13px;background:#fff}
 .progress-card .label{font-size:13px;color:var(--muted)}
@@ -85,7 +85,7 @@ input:focus{border-color:#cfcfcf;box-shadow:0 0 0 3px rgba(0,0,0,.03)}
 
 
 .status-box{
-  width:18px;height:18px;padding:0;margin:0;
+  width:15px;height:15px;padding:0;margin:0;
   border:1.5px solid #bdbdbd;
   border-radius:5px;
   background:#fff;
