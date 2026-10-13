@@ -1,0 +1,94 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="shared.css"><title>이번 주 할 일</title></head><body>
+<div class="card">
+  <div class="title-row"><div><h1>이번 주 할 일</h1><p class="sub" id="periodText"></p></div><span class="pill" id="summary">0%</span></div>
+  <div class="list" id="list"></div><div class="empty" id="empty">아직 등록된 할 일이 없어요.</div>
+  <div class="add-trigger"><button id="showAdd">+ 추가하기</button></div>
+  <div class="add-row" id="addRow"><input id="newTask" type="text" placeholder="주간 목표를 입력하세요"><button class="primary" id="addBtn">추가</button></div>
+</div>
+<script src="shared.js"></script><script>
+const TYPE="week";
+function nextStatus(status){
+  if(status==="todo") return "inprogress";
+  if(status==="inprogress") return "done";
+  return "todo";
+}
+function statusTitle(status){
+  if(status==="todo") return "예정";
+  if(status==="inprogress") return "진행중";
+  return "완료";
+}
+function render(){
+  document.getElementById("periodText").textContent=weekRangeText();
+  const c=completion(TYPE);
+  document.getElementById("summary").textContent=`${c.percent}% · ${c.done}/${c.total}`;
+  const data=getState(TYPE),list=document.getElementById("list");
+  list.innerHTML="";
+  const items=sortedItems(data.items);
+  document.getElementById("empty").style.display=items.length?"none":"block";
+  items.forEach(item=>{
+    const status=normalizedStatus(item);
+    const row=document.createElement("div");
+    row.className=`task ${status}`;
+
+    const box=document.createElement("button");
+    box.className=`status-box ${status}`;
+    box.type="button";
+    box.title=`현재: ${statusTitle(status)} · 클릭하면 다음 상태`;
+    box.setAttribute("aria-label", box.title);
+    box.onclick=()=>{
+      const s=getState(TYPE),x=s.items.find(t=>t.id===item.id);
+      if(x){
+        const ns=nextStatus(status);
+        x.status=ns;
+        x.done=ns==="done";
+        setState(TYPE,s);
+        render();
+      }
+    };
+
+    const txt=document.createElement("div");
+    txt.className="task-text";
+    txt.textContent=item.text;
+    txt.title=`${statusTitle(status)} · 더블클릭하여 수정`;
+    txt.ondblclick=()=>{
+      const v=prompt("주간 목표 수정",item.text);
+      if(v!==null&&v.trim()){
+        const s=getState(TYPE),x=s.items.find(t=>t.id===item.id);
+        if(x){x.text=v.trim();setState(TYPE,s);render()}
+      }
+    };
+
+    const actions=document.createElement("div");
+    actions.className="task-actions";
+    const del=document.createElement("button");
+    del.textContent="✕";
+    del.onclick=()=>{
+      const s=getState(TYPE);
+      s.items=s.items.filter(t=>t.id!==item.id);
+      setState(TYPE,s);render()
+    };
+    actions.appendChild(del);
+    row.append(box,txt,actions);
+    list.appendChild(row);
+  });
+  notifyResize();
+}
+function add(){
+  const input=document.getElementById("newTask"),text=input.value.trim();
+  if(!text)return;
+  const d=getState(TYPE);
+  d.items.push({id:uid(),text,status:"todo",done:false,createdAt:Date.now()});
+  setState(TYPE,d);
+  input.value="";
+  document.getElementById("addRow").classList.remove("show");
+  render();
+}
+document.getElementById("showAdd").onclick=()=>{
+  document.getElementById("addRow").classList.toggle("show");
+  setTimeout(()=>document.getElementById("newTask").focus(),0)
+};
+document.getElementById("addBtn").onclick=add;
+document.getElementById("newTask").addEventListener("keydown",e=>{if(e.key==="Enter")add()});
+render();onSharedChange(render);setInterval(render,60000);
+</script></body></html>
