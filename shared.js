@@ -123,3 +123,93 @@ const W = (() => {
   return {ymd,mondayOf,addDays,addMonths,addYears,fmtDate,fmtMonth,fmtYear,fmtWeek,weekKey,
           listController,showPicker};
 })();
+
+
+/* ===== v11 compatibility: progress + savings ===== */
+const Keys = {
+  savings: "nw:savings"
+};
+
+function save(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+  try{
+    window.dispatchEvent(new StorageEvent("storage", {key, newValue: JSON.stringify(value)}));
+  }catch(e){}
+}
+
+function fmtKRW(n){
+  n = Number(n) || 0;
+  return "₩" + Math.round(n).toLocaleString("ko-KR");
+}
+
+function ensureSavings(){
+  let s = null;
+  try{ s = JSON.parse(localStorage.getItem(Keys.savings) || "null"); }catch(e){}
+  if(!s || typeof s !== "object"){
+    s = {goal:1000000, current:0, history:[]};
+    save(Keys.savings, s);
+  }
+  if(!Array.isArray(s.history)) s.history = [];
+  if(!Number.isFinite(Number(s.goal)) || Number(s.goal) <= 0) s.goal = 1000000;
+  if(!Number.isFinite(Number(s.current)) || Number(s.current) < 0) s.current = 0;
+  s.goal = Number(s.goal);
+  s.current = Number(s.current);
+  return s;
+}
+
+function _readItems(key){
+  try{
+    const v = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(v) ? v : [];
+  }catch(e){ return []; }
+}
+
+function _currentKeysFor(type){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+  function mondayOf(d){
+    d = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    const day=d.getDay();
+    d.setDate(d.getDate()+(day===0?-6:1-day));
+    return d;
+  }
+
+  if(type==="today") return [`nw:v8:today:${ymd(now)}`];
+  if(type==="week") return [`nw:v8:week:${ymd(mondayOf(now))}`];
+  if(type==="month") return [`nw:v8:longterm:month:${now.getFullYear()}-${pad(now.getMonth()+1)}`];
+  if(type==="year") return [`nw:v8:longterm:year:${now.getFullYear()}`];
+  return [];
+}
+
+function completion(type){
+  const keys = _currentKeysFor(type);
+  let items = [];
+  for(const k of keys){
+    const got = _readItems(k);
+    if(got.length){ items = got; break; }
+  }
+  const total = items.length;
+  const done = items.filter(x => !!x.done).length;
+  const inprogress = items.filter(x => !x.done).length;
+  const percent = total ? Math.round(done/total*100) : 0;
+  return {total, done, inprogress, percent};
+}
+
+function onSharedChange(fn){
+  window.addEventListener("storage", fn);
+  window.addEventListener("nw-shared-change", fn);
+}
+
+function notifyResize(){
+  try{
+    const h = Math.ceil(document.documentElement.scrollHeight);
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:"resize", height:h}, "*");
+    }
+  }catch(e){}
+}
+
+window.addEventListener("load", notifyResize);
+window.addEventListener("resize", notifyResize);

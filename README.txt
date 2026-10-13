@@ -48,3 +48,15 @@ GitHub Pages가 켜져 있으면 기존 주소는 그대로 유지됩니다.
 - 이번주 할 일: 입력칸 기본 숨김, `＋ 추가하기`만 표시
 - 추가하기 클릭 시 작은 입력칸만 펼쳐짐
 - 장기목표와 추가 UI 스타일 통일
+
+
+## v11 complete bundle
+Included widgets:
+- longterm.html — 장기 목표
+- today.html — 오늘의 할 일
+- week.html — 이번주 할 일
+- progress.html — 목표 진행률
+- savings.html — 비상금 모으기
+
+공용 shared.css / shared.js는 5개 위젯이 함께 작동하도록 호환 코드를 포함합니다.
+GitHub에는 이 압축을 푼 뒤 파일들을 모두 같은 폴더에 업로드/덮어쓰기 하세요.
