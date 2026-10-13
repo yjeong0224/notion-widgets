@@ -2,13 +2,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>오늘의 할 일</title><link rel="stylesheet" href="shared.css"></head><body>
 <div class="widget">
-  <button class="nav prev" aria-label="이전">‹</button>
-  <button class="nav next" aria-label="다음">›</button>
-
   <div class="header">
-    <div>
+    <div style="min-width:0">
       <div class="title">오늘의 할 일</div>
-      <button class="period-btn" id="period"></button>
+      <div class="date-nav-row">
+        <button class="date-nav-btn" id="prev" aria-label="이전 날">‹</button>
+        <button class="period-btn" id="period"></button>
+        <button class="date-nav-btn" id="next" aria-label="다음 날">›</button>
+      </div>
     </div>
     <div class="progress" id="progress">0% · 0/0</div>
   </div>
@@ -45,7 +46,7 @@ const ctrl=W.listController({
   inputEl:newItem,
   addEl:add,
   keyFn:key,
-  kindFn:()=>'today',
+  kindFn:()=> 'today',
   onChange:items=>{
     const d=items.filter(x=>x.done).length;
     progress.textContent=`${items.length?Math.round(d/items.length*100):0}% · ${d}/${items.length}`;
@@ -57,11 +58,17 @@ function draw(){
   ctrl.render();
 }
 
-document.querySelector('.prev').onclick=()=>{cursor=W.addDays(cursor,-1);draw()};
-document.querySelector('.next').onclick=()=>{cursor=W.addDays(cursor,1);draw()};
+document.getElementById('prev').onclick=()=>{cursor=W.addDays(cursor,-1);draw()};
+document.getElementById('next').onclick=()=>{cursor=W.addDays(cursor,1);draw()};
 
 period.onclick=()=>W.showPicker(picker,cursor);
-picker.onchange=()=>{if(picker.value){const [y,m,d]=picker.value.split('-').map(Number);cursor=new Date(y,m-1,d);draw();}};
+picker.onchange=()=>{
+  if(picker.value){
+    const [y,m,d]=picker.value.split('-').map(Number);
+    cursor=new Date(y,m-1,d);
+    draw();
+  }
+};
 
 addLink.onclick=()=>{
   inputWrap.classList.toggle('open');

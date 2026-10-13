@@ -340,17 +340,54 @@ body{padding:8px}
 .text-btn:disabled{opacity:.4;cursor:default;text-decoration:none}
 
 
-/* ===== v12: remove horizontal scrollbar ===== */
+/* ===== v13 robust horizontal-scroll fix ===== */
 html, body {
-  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+  width: 100%;
   max-width: 100%;
+  overflow-x: clip !important;
+}
+body {
+  padding: 8px;
 }
 .widget, .card {
-  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
-.nav.prev {
-  left: 6px !important;
+.header, .title-row, .list, .item, .compact-add, .compact-input-wrap {
+  min-width: 0;
 }
-.nav.next {
-  right: 6px !important;
+.date-nav-row{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  margin-top:4px;
+  max-width:100%;
+}
+.date-nav-btn{
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:#a0a0a0;
+  width:24px;
+  height:24px;
+  padding:0;
+  border-radius:7px;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+.date-nav-btn:hover{
+  background:var(--soft);
+  color:#555;
+}
+.date-nav-row .period-btn{
+  min-width:0;
+  max-width:calc(100% - 56px);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  margin-top:0;
 }
