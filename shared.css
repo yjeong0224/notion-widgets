@@ -338,3 +338,19 @@ body{padding:8px}
 }
 .text-btn:hover{color:#555;text-decoration:underline}
 .text-btn:disabled{opacity:.4;cursor:default;text-decoration:none}
+
+
+/* ===== v12: remove horizontal scrollbar ===== */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100%;
+}
+.widget, .card {
+  overflow-x: hidden;
+}
+.nav.prev {
+  left: 6px !important;
+}
+.nav.next {
+  right: 6px !important;
+}
