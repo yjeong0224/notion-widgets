@@ -39,42 +39,33 @@ const W = (() => {
       return {
         id: it.id ?? `${Date.now()}-${i}`,
         text: String(it.text ?? it.title ?? it.name ?? it.content ?? "").trim(),
-        done: Boolean(it.done ?? it.completed ?? it.checked ?? false)
+        done: Boolean(it.done ?? it.completed ?? it.checked ?? false),
+        inprogress: Boolean(it.inprogress ?? false)
       };
     }).filter(x=>x && x.text);
   }
 
-  // 어제 버전에서 흔히 썼을 법한 키들을 자동 탐색해 첫 실행 때만 현재 기간으로 복사.
-  function migrateIfNeeded(targetKey, kind){
-    if(localStorage.getItem(targetKey)!==null) return;
-    const explicit = {
-      today:["todayTasks","today","tasks_today","dailyTasks","notion_today","today-tasks"],
-      week:["weekTasks","week","tasks_week","weeklyTasks","notion_week","week-tasks"],
-      month:["monthGoals","monthlyGoals","longtermGoals","longterm","goals","notion_longterm","longterm-goals"],
-      year:["yearGoals","yearlyGoals","longtermGoals","longterm","goals","notion_longterm","longterm-goals"]
-    }[kind] || [];
+  // Periods are isolated. Never infer a new period's items from another key.
+  function initializePeriod(targetKey){
+    if(localStorage.getItem(targetKey)===null) writeJSON(targetKey,[]);
+  }
 
-    const keys = [...explicit, ...Object.keys(localStorage).filter(k=>{
-      const s=k.toLowerCase();
-      if(kind==="today") return /today|daily/.test(s);
-      if(kind==="week") return /week|weekly/.test(s);
-      return /goal|long|month|year/.test(s);
-    })];
-
-    for(const k of [...new Set(keys)]){
-      const v=readJSON(k);
-      if(kind==="month" || kind==="year"){
-        // {month:[...], year:[...]} 같은 구조도 지원
-        if(v && !Array.isArray(v) && typeof v==="object"){
-          const candidate = kind==="month" ? (v.month ?? v.monthly ?? v.thisMonth) : (v.year ?? v.yearly ?? v.thisYear);
-          const n=normalizeItems(candidate);
-          if(n.length){ writeJSON(targetKey,n); return; }
-        }
+  function watchPeriod({getDate,setDate,getKind,onChange}){
+    let previous=new Date();
+    const token=(d,kind)=> kind==='today'?ymd(d):kind==='week'?weekKey(d):
+      kind==='month'?`${d.getFullYear()}-${d.getMonth()}`:String(d.getFullYear());
+    function check(){
+      const now=new Date(), kind=getKind();
+      if(token(previous,kind)!==token(now,kind)){
+        if(token(getDate(),kind)===token(previous,kind)) setDate(now);
+        onChange();
       }
-      const n=normalizeItems(v);
-      if(n.length){ writeJSON(targetKey,n); return; }
+      previous=now;
     }
-    writeJSON(targetKey,[]);
+    setInterval(check,1000);
+    window.addEventListener('focus',check);
+    window.addEventListener('pageshow',check);
+    document.addEventListener('visibilitychange',check);
   }
 
   function listController({listEl,inputEl,addEl,keyFn,kindFn,onChange}){
@@ -82,7 +73,7 @@ const W = (() => {
     function key(){ return keyFn(); }
     function load(){
       currentKey = key();
-      migrateIfNeeded(currentKey, kindFn());
+      initializePeriod(currentKey);
       return normalizeItems(readJSON(currentKey));
     }
     function save(items){ writeJSON(currentKey,items); if(onChange) onChange(items); }
@@ -95,8 +86,28 @@ const W = (() => {
       } else {
         items.forEach((it,idx)=>{
           const row=document.createElement("div"); row.className="item"+(it.done?" done":"");
-          const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=it.done;
-          cb.onchange=()=>{ items[idx].done=cb.checked; save(items); render(); };
+          const threeState=kindFn()!=='today';
+          const cb=document.createElement(threeState?'button':'input');
+          if(threeState){
+            cb.type='button';
+            cb.className='state-box'+(it.done?' complete':it.inprogress?' active':'');
+            cb.textContent=it.done?'✓':'';
+            cb.setAttribute('role','checkbox');
+            cb.setAttribute('aria-checked',it.done?'true':it.inprogress?'mixed':'false');
+            const status=it.done?'완료':it.inprogress?'진행중':'미시작';
+            cb.setAttribute('aria-label',`${it.text}: ${status}`);
+            cb.title=status+' — 클릭하여 상태 변경';
+            cb.onclick=()=>{
+              if(it.done){it.done=false;it.inprogress=false;}
+              else if(it.inprogress){it.done=true;it.inprogress=false;}
+              else{it.inprogress=true;}
+              save(items);render();
+            };
+          }else{
+            cb.type='checkbox';cb.checked=it.done;
+            cb.setAttribute('aria-label',it.text);
+            cb.onchange=()=>{items[idx].done=cb.checked;items[idx].inprogress=false;save(items);render();};
+          }
           const txt=document.createElement("div"); txt.className="txt"; txt.textContent=it.text;
           const del=document.createElement("button"); del.className="del"; del.textContent="×";
           del.title="삭제"; del.onclick=()=>{ items.splice(idx,1); save(items); render(); };
@@ -121,7 +132,7 @@ const W = (() => {
   }
 
   return {ymd,mondayOf,addDays,addMonths,addYears,fmtDate,fmtMonth,fmtYear,fmtWeek,weekKey,
-          listController,showPicker};
+          listController,showPicker,watchPeriod};
 })();
 
 
@@ -192,7 +203,7 @@ function completion(type){
   }
   const total = items.length;
   const done = items.filter(x => !!x.done).length;
-  const inprogress = items.filter(x => !x.done).length;
+  const inprogress = items.filter(x => !x.done && x.inprogress).length;
   const percent = total ? Math.round(done/total*100) : 0;
   return {total, done, inprogress, percent};
 }

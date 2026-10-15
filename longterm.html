@@ -1,13 +1,12 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>장기 목표</title><link rel="stylesheet" href="shared.css"></head><body>
+<title>장기 목표</title><link rel="stylesheet" href="shared.css?v=17"></head><body>
 <div class="widget" id="widget">
   <div class="header">
     <div>
       <div class="title">장기 목표</div>
       <button class="period-btn" id="period"></button>
     </div>
-    <div class="progress" id="progress">0% · 0/0</div>
   </div>
 
   <div class="tabs">
@@ -28,7 +27,7 @@
   </div>
 </div>
 
-<script src="shared.js"></script>
+<script src="shared.js?v=17"></script>
 <script>
 let mode='month';
 let cursor=new Date();
@@ -40,7 +39,6 @@ const inputWrap=document.getElementById('inputWrap');
 const newItem=document.getElementById('newItem');
 const add=document.getElementById('add');
 const list=document.getElementById('list');
-const progress=document.getElementById('progress');
 
 const key=()=> mode==='month'
   ? `nw:v8:longterm:month:${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}`
@@ -51,11 +49,7 @@ const ctrl=W.listController({
   inputEl:newItem,
   addEl:add,
   keyFn:key,
-  kindFn:()=>mode,
-  onChange:items=>{
-    const d=items.filter(x=>x.done).length;
-    progress.textContent=`${items.length?Math.round(d/items.length*100):0}% · ${d}/${items.length}`;
-  }
+  kindFn:()=>mode
 });
 
 function draw(){
@@ -173,5 +167,9 @@ document.addEventListener('click',e=>{
   if(!popover.contains(e.target) && e.target!==period) closePopover();
 });
 
+W.watchPeriod({
+  getDate:()=>cursor, setDate:now=>{cursor=now;},
+  getKind:()=>mode, onChange:draw
+});
 draw();
 </script></body></html>

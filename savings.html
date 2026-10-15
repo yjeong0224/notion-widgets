@@ -1,6 +1,6 @@
 
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="shared.css"><title>비상금 모으기</title></head><body>
+<link rel="stylesheet" href="shared.css?v=17"><title>비상금 모으기</title></head><body>
 <div class="card">
   <div class="title-row"><div><h1>비상금 모으기</h1><p class="sub">목표 금액까지 차곡차곡</p></div><button class="icon" id="editGoal" title="목표 수정">✎</button></div>
   <div class="amount-big" id="percent">0%</div>
@@ -11,7 +11,7 @@
   <div class="inline-edit" id="goalRow"><input id="goalInput" type="number" min="1" step="10000" placeholder="목표 금액"><button class="primary" id="goalSave">저장</button></div>
   <div class="footer-row"><span class="small muted" id="remain">남은 금액 ₩0</span><div class="toolbar"><button class="text-btn" id="undo">되돌리기</button><button class="text-btn" id="reset">리셋</button></div></div>
 </div>
-<script src="shared.js"></script><script>
+<script src="shared.js?v=17"></script><script>
 function render(){const s=ensureSavings();const pct=s.goal>0?Math.min(100,Math.max(0,(s.current/s.goal)*100)):0;document.getElementById("percent").textContent=`${pct.toFixed(pct<10?1:0)}%`;document.getElementById("current").textContent=`현재 ${fmtKRW(s.current)}`;document.getElementById("goal").textContent=`목표 ${fmtKRW(s.goal)}`;document.getElementById("remain").textContent=`남은 금액 ${fmtKRW(Math.max(0,s.goal-s.current))}`;const seg=document.getElementById("segments");seg.innerHTML="";const on=Math.round(pct/5);for(let i=0;i<20;i++){const x=document.createElement("div");x.className=`segment ${i<on?"on":""}`;seg.appendChild(x)}document.getElementById("undo").disabled=!s.history.length;notifyResize()}
 function addAmount(n){n=Number(n);if(!Number.isFinite(n)||n<=0)return;const s=ensureSavings();s.history.push(s.current);if(s.history.length>50)s.history.shift();s.current+=n;save(Keys.savings,s);render()}
 document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addAmount(b.dataset.add));
@@ -20,6 +20,6 @@ document.getElementById("customAdd").onclick=()=>{const i=document.getElementByI
 document.getElementById("editGoal").onclick=()=>{const r=document.getElementById("goalRow");r.classList.toggle("show");document.getElementById("goalInput").value=ensureSavings().goal};
 document.getElementById("goalSave").onclick=()=>{const v=Number(document.getElementById("goalInput").value);if(v>0){const s=ensureSavings();s.goal=v;save(Keys.savings,s);document.getElementById("goalRow").classList.remove("show");render()}};
 document.getElementById("undo").onclick=()=>{const s=ensureSavings();if(s.history.length){s.current=s.history.pop();save(Keys.savings,s);render()}};
-document.getElementById("reset").onclick=()=>{if(confirm("현재 모은 금액을 0원으로 리셋할까요?")){const s=ensureSavings();s.history.push(s.current);s.current=0;save(Keys.savings,s);render()}};
+document.getElementById("reset").onclick=()=>{const s=ensureSavings();s.history.push(s.current);if(s.history.length>50)s.history.shift();s.current=0;save(Keys.savings,s);render()};
 render();onSharedChange(render);
 </script></body></html>

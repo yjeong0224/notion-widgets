@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="shared.css"><title>목표 진행률</title></head><body>
+<link rel="stylesheet" href="shared.css?v=17"><title>목표 진행률</title></head><body>
 <div class="card">
   <div class="title-row">
     <div><h1>목표 진행률</h1><p class="sub">일간부터 연간까지 한눈에</p></div>
@@ -7,7 +7,7 @@
   <div class="progress-stack" id="stack"></div>
   <p class="note">완료된 목표만 진행률에 반영됩니다.</p>
 </div>
-<script src="shared.js"></script>
+<script src="shared.js?v=17"></script>
 <script>
 const labels={today:"오늘",week:"이번 주",month:"이번 달",year:"올해"};
 function render(){
@@ -23,7 +23,7 @@ function render(){
         <div class="value">${c.percent}%</div>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${c.percent}%"></div></div>
-      <div class="meta">${c.done}/${c.total} 완료${c.inprogress ? ` · ${c.inprogress} 진행중` : ""}</div>
+      <div class="meta">${c.done}/${c.total} 완료</div>
     `;
     stack.appendChild(item);
   });

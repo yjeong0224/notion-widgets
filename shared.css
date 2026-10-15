@@ -1,6 +1,6 @@
 
 :root{
-  --bg:#ffffff; --text:#2f3437; --muted:#9b9fa3; --line:#e9e9e7;
+  --bar-fill:#eeb6cb; --bg:#ffffff; --text:#2f3437; --muted:#9b9fa3; --line:#e9e9e7;
   --soft:#f7f7f5; --shadow:0 1px 4px rgba(15,15,15,.06);
 }
 *{box-sizing:border-box}
@@ -243,7 +243,7 @@ body{padding:8px}
 }
 .progress-fill{
   height:100%;
-  background:#70757a;
+  background:var(--bar-fill);
   border-radius:999px;
   transition:width .2s ease;
 }
@@ -271,7 +271,7 @@ body{padding:8px}
   border-radius:3px;
   background:#ececea;
 }
-.segment.on{background:#70757a}
+.segment.on{background:var(--bar-fill)}
 .amount-row{
   display:flex;
   justify-content:space-between;
@@ -422,3 +422,9 @@ body {
   padding: 10px 4px !important;
   font-size: 12px !important;
 }
+
+/* Three-state goals: empty, centered dot, check. */
+.item .state-box{width:14px;height:14px;flex:0 0 14px;padding:0;border:1px solid #999;border-radius:3px;background:#fff;color:#444;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin:3px;}
+.item .state-box.active::before{content:"";width:4px;height:4px;border-radius:50%;background:#444;}
+.item .state-box.complete{background:#444;border-color:#444;color:#fff;font-size:12px;line-height:1;}
+.item .state-box:focus-visible{outline:2px solid #666;outline-offset:2px;}
