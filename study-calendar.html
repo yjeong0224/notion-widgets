@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>월별 공부 체크</title>
+<style>
+:root{--pink:#eeb6cb;--gray:#b7b9bc;--text:#2f3437;--muted:#9b9fa3;--line:#e9e9e7;--soft:#f7f7f5}
+*{box-sizing:border-box}html,body{margin:0;width:100%;background:transparent;color:var(--text);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Pretendard,"Noto Sans KR",sans-serif}body{padding:8px}.widget{width:100%;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 1px 4px rgba(15,15,15,.06)}.title{font-size:20px;font-weight:700;margin:0;line-height:1.25}.month-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:19px 0 15px}.month-label{font-size:15px;font-weight:600;min-width:110px;text-align:center;font-variant-numeric:tabular-nums}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.nav-btn{border:0;background:transparent;color:#999;border-radius:8px;width:30px;height:30px;font-size:23px;padding:0;line-height:1}.nav-btn:hover{background:var(--soft);color:#555}.calendar{max-width:490px;margin:auto}.weekdays,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.weekdays{font-size:11px;text-align:center;color:#a0a0a0;margin-bottom:12px}.days{row-gap:12px}.day-slot{display:flex;align-items:center;justify-content:center;min-width:0}.day{position:relative;display:flex;isolation:isolate;width:100%;max-width:44px;aspect-ratio:1;border:1px solid #e4e4e2;border-radius:50%;background:white}.day[data-state="1"]{background:var(--pink);border-color:var(--pink)}.day[data-state="2"]{background:var(--gray);border-color:var(--gray)}.day[data-state="3"]{background:linear-gradient(to right,var(--pink) 0%,var(--pink) 50%,var(--gray) 50%,var(--gray) 100%);border-color:transparent}.day.today{outline:1px solid #777;outline-offset:3px}.half{width:50%;height:100%;border:0;background:transparent;padding:0;position:relative;z-index:2}.half.left{border-radius:100% 0 0 100% / 50% 0 0 50%}.half.right{border-radius:0 100% 100% 0 / 0 50% 50% 0}.half:hover{background:rgba(0,0,0,.045)}.half:focus-visible{outline:2px solid #555;outline-offset:1px;background:rgba(255,255,255,.25)}.date-number{pointer-events:none;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:1;color:#62666a;font-variant-numeric:tabular-nums}.day:not([data-state="0"]) .date-number{color:#34383b}.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:15px;margin-top:20px;font-size:11px;color:#8c8f92}.legend span{display:inline-flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block}.pink{background:var(--pink)}.gray{background:var(--gray)}.both{background:linear-gradient(to right,var(--pink) 50%,var(--gray) 50%)}.hint{font-size:11px;color:#aaa;text-align:center;margin:9px 0 0;line-height:1.5}.stats{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 14px;border-top:1px solid var(--line);margin-top:15px;padding-top:14px;font-size:12px;color:#888}.stats strong{color:#555;font-weight:600}.footer{display:flex;justify-content:center;margin-top:9px}.current-btn{border:0;background:transparent;color:#aaa;font-size:11px;padding:5px 8px;border-radius:6px}.current-btn:hover{background:var(--soft);color:#555}.notice{color:#777;font-size:12px;text-align:center;line-height:1.5;margin-top:8px}.notice:empty{display:none}.nav-btn:focus-visible,.current-btn:focus-visible{outline:2px solid #999;outline-offset:2px}@media(max-width:360px){body{padding:6px}.widget{padding:16px 12px}.days,.weekdays{gap:7px}.days{row-gap:11px}.date-number{font-size:11px}.legend{gap:10px}}
+</style>
+</head>
+<body>
+<div class="widget">
+<h1 class="title">월별 공부 체크</h1>
+<div class="month-nav"><button class="nav-btn" id="prev" type="button" aria-label="이전 달">‹</button><div class="month-label" id="monthLabel" aria-live="polite"></div><button class="nav-btn" id="next" type="button" aria-label="다음 달">›</button></div>
+<div class="calendar"><div class="weekdays" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div><div class="days" id="days" role="group" aria-label="날짜별 공부 체크"></div></div>
+<div class="legend"><span><i class="dot pink"></i>영어</span><span><i class="dot gray"></i>중국어</span><span><i class="dot both"></i>둘 다</span></div>
+<div class="stats" aria-live="polite"><span>영어 <strong id="englishCount">0일</strong></span><span>중국어 <strong id="chineseCount">0일</strong></span><span>총 공부 <strong id="totalCount">0일</strong></span></div>
+<div class="notice" id="notice" role="status"></div>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),prefix='nw:study-calendar:v1:';
+function today(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date());const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));return {year:+v.year,month:+v.month-1,day:+v.day}}
+let now=today(),year=now.year,month=now.month;
+const monthKey=()=>prefix+year+'-'+String(month+1).padStart(2,'0');
+function read(){try{const value=JSON.parse(localStorage.getItem(monthKey())||'{}');if(!value||typeof value!=='object'||Array.isArray(value))throw Error('invalid');return value}catch(e){$('notice').textContent='기록을 읽지 못했어요. 브라우저의 저장 설정을 확인해 주세요.';return null}}
+const stateOf=(data,d)=>[1,2,3].includes(data[d])?data[d]:0;
+function toggle(day,bit){const data=read();if(!data)return;const state=stateOf(data,day)^bit;if(state)data[day]=state;else delete data[day];try{localStorage.setItem(monthKey(),JSON.stringify(data))}catch(e){$('notice').textContent='저장하지 못했어요. 브라우저의 저장 설정이나 저장 공간을 확인해 주세요.';return}$('notice').textContent='';render();const button=$('days').querySelector('[data-day="'+day+'"][data-bit="'+bit+'"]');if(button)button.focus({preventScroll:true})}
+function render(){now=today();$('monthLabel').textContent=year+'년 '+(month+1)+'월';$('days').replaceChildren();const stored=read(),data=stored||{};const first=new Date(year,month,1).getDay(),last=new Date(year,month+1,0).getDate();let english=0,chinese=0,total=0;
+for(let i=0;i<first;i++){const spacer=document.createElement('div');spacer.setAttribute('aria-hidden','true');$('days').append(spacer)}
+for(let day=1;day<=last;day++){const state=stateOf(data,day);if(state&1)english++;if(state&2)chinese++;if(state)total++;
+const slot=document.createElement('div');slot.className='day-slot';const circle=document.createElement('div');circle.className='day';circle.dataset.state=String(state);if(year===now.year&&month===now.month&&day===now.day){circle.classList.add('today');circle.setAttribute('aria-current','date')}
+for(const [bit,subject,side] of [[1,'영어','left'],[2,'중국어','right']]){const b=document.createElement('button');b.type='button';b.className='half '+side;b.dataset.day=String(day);b.dataset.bit=String(bit);b.disabled=stored===null;b.setAttribute('aria-label',year+'년 '+(month+1)+'월 '+day+'일 '+subject);b.setAttribute('aria-pressed',String(Boolean(state&bit)));b.title=day+'일 '+subject+' '+(state&bit?'체크 해제':'체크');b.onclick=()=>toggle(day,bit);circle.append(b)}
+const number=document.createElement('span');number.className='date-number';number.textContent=day;number.setAttribute('aria-hidden','true');circle.append(number);slot.append(circle);$('days').append(slot)}
+$('englishCount').textContent=english+'일';$('chineseCount').textContent=chinese+'일';$('totalCount').textContent=total+'일'}
+function move(delta){const d=new Date(year,month+delta,1);year=d.getFullYear();month=d.getMonth();$('notice').textContent='';render()}
+$('prev').onclick=()=>move(-1);$('next').onclick=()=>move(1);window.addEventListener('storage',e=>{if(e.key===monthKey()||e.key===null){$('notice').textContent='';render()}});render();
+})();
+</script>
+</body>
+</html>
